@@ -1,4 +1,7 @@
 /third_party/
 /bin/
+/www/
+
+/words/post.html.template
 
 api-from-schema

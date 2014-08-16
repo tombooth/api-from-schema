@@ -15,6 +15,24 @@ third_party:
 build:
 	go run third_party.go build -v $(REPO_PATH)
 
+words: words/post.html.template
+	mkdir -p www
+	pandoc --template=words/post.html.template -s words/article.md -o www/index.html
+	cp -r words/img www/
+
+words/post.html.template:
+	curl https://raw.githubusercontent.com/tombooth/tombooth.github.io/develop/templates/post.html > words/post.html.template
+
+release: words
+	git checkout gh-pages && \
+	git rm -rf . && \
+	cp -r www/* . && \
+	git add index.html && \
+	git add -A img/ && \
+	git commit -m "Update homepage" && \
+	git push origin gh-pages -f && \
+	git checkout master
+
 clean:
-	rm -rf third_party
-	rm api-from-schema
+	rm -rf third_party www
+	rm api-from-schema words/post.html.template

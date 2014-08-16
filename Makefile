@@ -4,7 +4,7 @@ BINARY := api-from-schema
 ORG_PATH := github.com/tombooth
 REPO_PATH := $(ORG_PATH)/api-from-schema
 
-all: deps build
+all: deps build words
 
 deps: third_party
 	go run third_party.go get -t -v .
@@ -23,7 +23,7 @@ words: words/post.html.template
 words/post.html.template:
 	curl https://raw.githubusercontent.com/tombooth/tombooth.github.io/develop/templates/post.html > words/post.html.template
 
-release: words
+release: clean all
 	git checkout gh-pages && \
 	git rm -rf . && \
 	cp -r www/* . && \
@@ -35,4 +35,5 @@ release: words
 
 clean:
 	rm -rf third_party www
-	rm api-from-schema words/post.html.template
+	rm -f api-from-schema
+	rm -f words/post.html.template

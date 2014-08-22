@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/docopt/docopt-go"
+	"github.com/tombooth/api-from-schema/schematic"
 )
 
 func main() {
@@ -19,5 +20,9 @@ Options:
 `
 
 	arguments, _ := docopt.Parse(usage, nil, true, "Api from schema 0.1.0", false)
-	fmt.Println(arguments)
+
+	path := arguments["<json_schema>"].(string)
+	if schema_rep, err := schema.ParseSchema(path); err == nil {
+		fmt.Println("%s", schema_rep)
+	}
 }

@@ -1,10 +1,10 @@
-.PHONY: deps build clean
+.PHONY: deps test build clean
 
 BINARY := api-from-schema
 ORG_PATH := github.com/tombooth
 REPO_PATH := $(ORG_PATH)/api-from-schema
 
-all: deps build words
+all: deps test build words
 
 deps: third_party
 	go run third_party.go get -t -v .
@@ -14,6 +14,9 @@ third_party:
 
 build:
 	go run third_party.go build -v $(REPO_PATH)
+
+test:
+	go run third_party.go test -v $(REPO_PATH)/schematic
 
 words: words/post.html.template
 	mkdir -p www

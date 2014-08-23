@@ -120,14 +120,3 @@ func (h *HRef) UnmarshalJSON(data []byte) error {
 func (h *HRef) MarshalJSON() ([]byte, error) {
 	return []byte(h.href), nil
 }
-
-// URL returns a usable URL for the href.
-func (h *HRef) URL() (*url.URL, error) {
-	return url.Parse(string(h.href))
-}
-
-func (h *HRef) String() string {
-	return href.ReplaceAllStringFunc(string(h.href), func(v string) string {
-		return "%v"
-	})
-}

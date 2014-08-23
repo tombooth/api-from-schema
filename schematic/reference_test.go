@@ -122,10 +122,3 @@ func TestHREfResolve(t *testing.T) {
 		}
 	}
 }
-
-func TestHRefString(t *testing.T) {
-	href := NewHRef("/app/{(%23%2Fdefinitions%2Fstruct%2Fdefinitions%2Fuuid)}")
-	if href.String() != "/app/%v" {
-		t.Errorf("wants %v, got %v", "/app/%v", href.String())
-	}
-}

@@ -166,16 +166,6 @@ func (s *Schema) Values(name string, l *Link) []string {
 	return values
 }
 
-// URL returns schema base URL.
-func (s *Schema) URL() string {
-	for _, l := range s.Links {
-		if l.Rel == "self" {
-			return l.HRef.String()
-		}
-	}
-	return ""
-}
-
 // Parameters returns function parameters names and types.
 func (l *Link) Parameters() ([]string, map[string]string) {
 	if l.HRef == nil {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -76,9 +77,56 @@ func (s *Schema) GoType() string {
 	return s.goType(true, true)
 }
 
+func (s *Schema) Regex() (regex string) {
+	if s.Pattern != "" {
+		regex = s.Pattern
+	} else if s.Format != "" {
+		switch s.Format {
+		case "uuid":
+			regex = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+		case "date-time":
+			regex = "([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?"
+		}
+	} else {
+		types := s.Types()
+		parts := make([]string, len(types))
+
+		for i, kind := range types {
+			switch kind {
+			case "boolean":
+				parts[i] = "true|false"
+			case "number":
+				parts[i] = "[0-9\\.]+"
+			case "integer":
+				parts[i] = "[0-9]+"
+			default:
+				parts[i] = ".*"
+			}
+		}
+
+		if len(parts) > 1 {
+			regex = strings.Join(surroundWith(parts, "(", ")"), "|")
+		} else {
+			regex = parts[0]
+		}
+	}
+
+	return regex
+}
+
 // IsCustomType returns true if the schema declares a custom type.
 func (s *Schema) IsCustomType() bool {
 	return len(s.Properties) > 0
+}
+
+func surroundWith(slice []string, prefix string, suffix string) []string {
+	surrounded := make([]string, len(slice))
+
+	for i, part := range slice {
+		surrounded[i] = prefix + part + suffix
+	}
+
+	return surrounded
 }
 
 func (s *Schema) goType(required bool, force bool) (goType string) {

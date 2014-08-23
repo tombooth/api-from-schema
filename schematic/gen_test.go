@@ -80,6 +80,78 @@ func TestSchemaType(t *testing.T) {
 	}
 }
 
+var regexTests = []struct {
+	Schema *Schema
+	Regex  string
+}{
+	{
+		Schema: &Schema{
+			Type: "boolean",
+		},
+		Regex: "true|false",
+	},
+	{
+		Schema: &Schema{
+			Type: "number",
+		},
+		Regex: "[0-9\\.]+",
+	},
+	{
+		Schema: &Schema{
+			Type: "integer",
+		},
+		Regex: "[0-9]+",
+	},
+	{
+		Schema: &Schema{
+			Type: "any",
+		},
+		Regex: ".*",
+	},
+	{
+		Schema: &Schema{
+			Type: "string",
+		},
+		Regex: ".*",
+	},
+	{
+		Schema: &Schema{
+			Type: []interface{}{"string", "integer"},
+		},
+		Regex: "(.*)|([0-9]+)",
+	},
+	{
+		Schema: &Schema{
+			Type:    "string",
+			Pattern: "[a-z]+",
+		},
+		Regex: "[a-z]+",
+	},
+	{
+		Schema: &Schema{
+			Type:   "string",
+			Format: "uuid",
+		},
+		Regex: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
+	},
+	{
+		Schema: &Schema{
+			Type:   "string",
+			Format: "date-time",
+		},
+		Regex: "([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?",
+	},
+}
+
+func TestSchemaRegex(t *testing.T) {
+	for i, tt := range regexTests {
+		kind := tt.Schema.Regex()
+		if !strings.Contains(kind, tt.Regex) {
+			t.Errorf("%d: wants %v, got %v", i, tt.Regex, kind)
+		}
+	}
+}
+
 var linkTests = []struct {
 	Link *Link
 	Type string

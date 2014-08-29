@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-04/hyper-schema",
+  "definitions": {
+    "thing": {
+      "$schema": "http://json-schema.org/draft-04/hyper-schema",
+      "title": "Thing",
+      "definitions": {
+        "id": {
+          "description": "unique identifier of thing",
+          "type": [
+            "integer"
+          ]
+        },
+        "identifier": {
+          "$ref": "#/definitions/thing/definitions/id"
+        }
+      },
+      "links": [
+        {
+          "href": "/thing/{(%23%2Fdefinitions%2Fthing%2Fdefinitions%2Fidentifier)}",
+          "method": "GET",
+          "rel": "self",
+          "title": "Info"
+        },
+        {
+          "href": "/thing",
+          "method": "GET",
+          "rel": "instances",
+          "title": "List"
+        }
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/thing/definitions/id"
+        }
+      },
+      "type": [
+        "object"
+      ]
+    }
+  },
+  "properties": {
+    "thing": {
+      "$ref": "#/definitions/thing"
+    }
+  },
+  "type": [
+    "object"
+  ],
+  "description": "Testing API",
+  "id": "test-api",
+  "title": "A Test API"
+}

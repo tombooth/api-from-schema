@@ -7,7 +7,7 @@ REPO_PATH := $(ORG_PATH)/api-from-schema
 all: deps test build words
 
 deps: third_party
-	go run third_party.go get -t -v .
+	go run third_party.go get -t -v $(REPO_PATH)
 
 third_party:
 	go run third_party.go setup $(REPO_PATH)
@@ -16,6 +16,7 @@ build:
 	go run third_party.go build -v $(REPO_PATH)
 
 test:
+	go run third_party.go test -v $(REPO_PATH)
 	go run third_party.go test -v $(REPO_PATH)/schematic
 
 words: words/post.html.template

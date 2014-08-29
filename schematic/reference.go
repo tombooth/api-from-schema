@@ -94,19 +94,23 @@ func NewHRef(href string) *HRef {
 	}
 }
 
+func toSchemaName(ref string) (string, string) {
+	u, err := url.QueryUnescape(ref[2 : len(ref)-2])
+	if err != nil {
+		panic(err)
+	}
+	parts := strings.Split(u, "/")
+	return initialLow(fmt.Sprintf("%s-%s", parts[len(parts)-3], parts[len(parts)-1])), u
+}
+
 // Resolve resolves a href inside a Schema.
 func (h *HRef) Resolve(r *Schema) {
 	h.Order = make([]string, 0)
 	h.Schemas = make(map[string]*Schema)
 	for _, v := range href.FindAllString(string(h.href), -1) {
-		u, err := url.QueryUnescape(v[2 : len(v)-2])
-		if err != nil {
-			panic(err)
-		}
-		parts := strings.Split(u, "/")
-		name := initialLow(fmt.Sprintf("%s-%s", parts[len(parts)-3], parts[len(parts)-1]))
+		name, ref := toSchemaName(v)
 		h.Order = append(h.Order, name)
-		h.Schemas[name] = Reference(u).Resolve(r)
+		h.Schemas[name] = Reference(ref).Resolve(r)
 	}
 }
 
@@ -119,4 +123,13 @@ func (h *HRef) UnmarshalJSON(data []byte) error {
 // MarshalJSON returns *h as the JSON encoding of h.
 func (h *HRef) MarshalJSON() ([]byte, error) {
 	return []byte(h.href), nil
+}
+
+func (h *HRef) URLPattern() string {
+	return href.ReplaceAllStringFunc(string(h.href), func(ref string) string {
+		name, _ := toSchemaName(ref)
+		schema := h.Schemas[name]
+
+		return "{" + name + ":" + schema.Regex() + "}"
+	})
 }

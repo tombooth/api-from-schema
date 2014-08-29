@@ -122,3 +122,37 @@ func TestHREfResolve(t *testing.T) {
 		}
 	}
 }
+
+var urlPatternTests = []struct {
+	HRef       string
+	Schema     *Schema
+	URLPattern string
+}{
+	{
+		HRef: "/app/{(%23%2Fdefinitions%2Fapp%2Fdefinitions%2Fidentifier)}",
+		Schema: &Schema{
+			Definitions: map[string]*Schema{
+				"app": {
+					Definitions: map[string]*Schema{
+						"identifier": {
+							Title: "Identifier",
+							Type:  "integer",
+						},
+					},
+				},
+			},
+		},
+		URLPattern: "/app/{appIdentifier:[0-9]+}",
+	},
+}
+
+func TestURLPattern(t *testing.T) {
+	for i, ht := range urlPatternTests {
+		href := NewHRef(ht.HRef)
+		href.Resolve(ht.Schema)
+		pattern := href.URLPattern()
+		if pattern != ht.URLPattern {
+			t.Errorf("%d: resolved pattern don't match, got %v, wants %v", i, pattern, ht.URLPattern)
+		}
+	}
+}

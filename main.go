@@ -26,15 +26,12 @@ Options:
 
 	if apiSchema, err := schema.ParseSchema(path); err == nil {
 		apiSchema.Resolve(nil)
-		endpoints, definitionsToEndpoints := EndpointsFromSchema(apiSchema)
-		models := ModelsFromDTE(definitionsToEndpoints)
+		models := ModelsFromSchema(apiSchema)
 
 		context := struct {
-			Endpoints []Endpoint
-			Models    []Model
+			Models []Model
 		}{
-			Endpoints: endpoints,
-			Models:    models,
+			Models: models,
 		}
 
 		apiTmpl, _ := template.ParseFiles("templates/api.tmpl")

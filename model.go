@@ -11,15 +11,15 @@ type Model struct {
 	Endpoints []Endpoint
 }
 
-func ModelsFromDTE(DTE map[*schema.Schema][]Endpoint) []Model {
+func ModelsFromSchema(apiSchema *schema.Schema) []Model {
 	models := []Model{}
 
-	for definition, endpoints := range DTE {
+	for _, definition := range apiSchema.Definitions {
 		model := Model{
 			Name:       definition.Title,
 			Definition: definition,
 
-			Endpoints: endpoints,
+			Endpoints: EndpointsFromDefinition(definition),
 		}
 		models = append(models, model)
 	}

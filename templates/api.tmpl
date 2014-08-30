@@ -10,17 +10,26 @@ import (
 {{range .Models}}
 type {{.Name}} struct {
 }
-{{end}}
 
 {{range .Endpoints}}
 {{.HandlerDefinition}}
 {{end}}
 
-func main() {
-	r := mux.NewRouter()
-	{{range .Endpoints}}
-	r.HandleFunc("{{.URL}}", {{.HandlerName}}).Methods("{{.Method}}"){{end}}
+func Bind{{.Name}}Handlers(router *mux.Router) {
+{{range .Endpoints}}
+	router.HandleFunc(
+		"{{.URL}}",
+		{{.HandlerName}},
+	).Methods("{{.Method}}")
+{{end}}
+}
+{{end}}
 
-	http.ListenAndServe(":8080", r)
+func main() {
+	router := mux.NewRouter()
+{{range .Models}}
+	Bind{{.Name}}Handlers(router){{end}}
+
+	http.ListenAndServe(":8080", router)
 }
 

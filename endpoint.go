@@ -28,24 +28,28 @@ func EndpointFromLink(link schema.Link, parent *schema.Schema) Endpoint {
 	}
 }
 
-func EndpointsFromSchema(apiSchema *schema.Schema) ([]Endpoint, map[*schema.Schema][]Endpoint) {
-	endpoints := []Endpoint{}
-	definitionToEndpoints := make(map[*schema.Schema][]Endpoint)
+func EndpointsFromDefinition(definition *schema.Schema) []Endpoint {
+	endpointsForDefinition := []Endpoint{}
 
-	for _, definition := range apiSchema.Definitions {
-		endpointsForDefinition := []Endpoint{}
-
-		for _, link := range definition.Links {
-			endpointsForDefinition = append(
-				endpointsForDefinition,
-				EndpointFromLink(link, definition))
-		}
-
-		endpoints = append(endpoints, endpointsForDefinition...)
-		definitionToEndpoints[definition] = endpointsForDefinition
+	for _, link := range definition.Links {
+		endpointsForDefinition = append(
+			endpointsForDefinition,
+			EndpointFromLink(link, definition))
 	}
 
-	return endpoints, definitionToEndpoints
+	return endpointsForDefinition
+}
+
+func EndpointsFromSchema(apiSchema *schema.Schema) []Endpoint {
+	endpoints := []Endpoint{}
+
+	for _, definition := range apiSchema.Definitions {
+		endpoints = append(
+			endpoints,
+			EndpointsFromDefinition(definition)...)
+	}
+
+	return endpoints
 }
 
 func (endpoint *Endpoint) HandlerName() string {

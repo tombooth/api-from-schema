@@ -22,21 +22,17 @@ func TestEndpoints(t *testing.T) {
 	apiSchema, _ := schema.ParseSchema("fixtures/test-api.json")
 	apiSchema.Resolve(nil)
 
-	endpoints, definitionToEndpoints := EndpointsFromSchema(apiSchema)
+	endpoints := EndpointsFromSchema(apiSchema)
 
 	assertEndpoint(t, endpoints[0], "/thing/{thingIdentifier:[0-9]+}", "GET", false)
 	assertEndpoint(t, endpoints[1], "/thing", "GET", true)
-
-	if len(definitionToEndpoints[apiSchema.Definitions["thing"]]) != 2 {
-		t.Errorf("definition to schema mapping is wrong")
-	}
 }
 
 func TestHandlerName(t *testing.T) {
 	apiSchema, _ := schema.ParseSchema("fixtures/test-api.json")
 	apiSchema.Resolve(nil)
 
-	endpoints, _ := EndpointsFromSchema(apiSchema)
+	endpoints := EndpointsFromSchema(apiSchema)
 
 	if endpoints[0].HandlerName() != "GETThingByThingIdentifier" ||
 		endpoints[1].HandlerName() != "GETThings" {

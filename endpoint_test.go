@@ -18,21 +18,22 @@ func assertEndpoint(t *testing.T, endpoint Endpoint, expectedURL string, expecte
 	}
 }
 
-func TestEndpoints(t *testing.T) {
+func endpointsFromJSON(path string) []Endpoint {
 	apiSchema, _ := schema.ParseSchema("fixtures/test-api.json")
 	apiSchema.Resolve(nil)
 
-	endpoints := EndpointsFromSchema(apiSchema)
+	return EndpointsFromSchema(apiSchema)
+}
+
+func TestEndpoints(t *testing.T) {
+	endpoints := endpointsFromJSON("fixtures/test-api.json")
 
 	assertEndpoint(t, endpoints[0], "/thing/{thingIdentifier:[0-9]+}", "GET", false)
 	assertEndpoint(t, endpoints[1], "/thing", "GET", true)
 }
 
 func TestHandlerName(t *testing.T) {
-	apiSchema, _ := schema.ParseSchema("fixtures/test-api.json")
-	apiSchema.Resolve(nil)
-
-	endpoints := EndpointsFromSchema(apiSchema)
+	endpoints := endpointsFromJSON("fixtures/test-api.json")
 
 	if endpoints[0].HandlerName() != "GETThingByThingIdentifier" ||
 		endpoints[1].HandlerName() != "GETThings" {

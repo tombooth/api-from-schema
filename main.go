@@ -1,35 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"os"
+	"text/template"
+
 	"github.com/docopt/docopt-go"
 	"github.com/tombooth/api-from-schema/schematic"
 )
-
-type Endpoint struct {
-	URL                string
-	Method             string
-	IsList             bool
-	ResponseDefinition *schema.Schema
-}
-
-func EndpointsFromSchema(apiSchema *schema.Schema) []Endpoint {
-	endpoints := []Endpoint{}
-
-	for _, definition := range apiSchema.Definitions {
-		for _, link := range definition.Links {
-			endpoint := Endpoint{
-				URL:                link.HRef.URLPattern(),
-				Method:             link.Method,
-				IsList:             link.Rel == "instances",
-				ResponseDefinition: definition,
-			}
-			endpoints = append(endpoints, endpoint)
-		}
-	}
-
-	return endpoints
-}
 
 func main() {
 	usage := `Api from schema
@@ -49,9 +26,9 @@ Options:
 
 	if apiSchema, err := schema.ParseSchema(path); err == nil {
 		apiSchema.Resolve(nil)
+		endpoints := EndpointsFromSchema(apiSchema)
 
-		for _, endpoint := range EndpointsFromSchema(apiSchema) {
-			fmt.Println(endpoint.Method, endpoint.URL, endpoint.IsList)
-		}
+		apiTmpl, _ := template.ParseFiles("templates/api.tmpl")
+		apiTmpl.Execute(os.Stdout, endpoints)
 	}
 }

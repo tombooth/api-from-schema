@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/tombooth/api-from-schema/schematic"
 	"testing"
+
+	"github.com/tombooth/api-from-schema/schematic"
 )
 
 func assertEndpoint(t *testing.T, endpoint Endpoint, expectedURL string, expectedMethod string, isList bool) {
@@ -25,4 +26,16 @@ func TestEndpoints(t *testing.T) {
 
 	assertEndpoint(t, endpoints[0], "/thing/{thingIdentifier:[0-9]+}", "GET", false)
 	assertEndpoint(t, endpoints[1], "/thing", "GET", true)
+}
+
+func TestHandlerName(t *testing.T) {
+	apiSchema, _ := schema.ParseSchema("fixtures/test-api.json")
+	apiSchema.Resolve(nil)
+
+	endpoints := EndpointsFromSchema(apiSchema)
+
+	if endpoints[0].HandlerName() != "GETThingByThingIdentifier" ||
+		endpoints[1].HandlerName() != "GETThings" {
+		t.Errorf("HanderName failed. [0] %v [1] %v", endpoints[0].HandlerName(), endpoints[1].HandlerName())
+	}
 }

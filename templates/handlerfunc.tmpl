@@ -1,3 +1,18 @@
-func {{.HandlerName}}(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "hello from {{.HandlerName}}\n")
+func {{.Endpoint.HandlerName}}(w http.ResponseWriter, req *http.Request) {
+{{if gt (len .Endpoint.Vars) 0}}vars := mux.Vars(req){{end}}
+{{if .Endpoint.RequiresModel }}{{$Constructor := .Model.ConstructorForEndpoint .Endpoint}}
+	model, err := {{$Constructor.Name}}({{range $Constructor.Arguments}}
+	vars["{{.}}"],
+	{{end}}
+	)
+	if err != nil {
+		JSONResponse(w, 500, HTTPError{Message:fmt.Sprintf("%v", err)})
+	}
+{{end}}
+{{if eq .Endpoint.Method "GET"}}
+	JSONResponse(w, 200, model)
+{{else}}
+	{{if .Endpoint.RequiresModel}}fmt.Println(model){{end}}
+	io.WriteString(w, "hello from {{.Endpoint.HandlerName}}\n")
+{{end}}
 }

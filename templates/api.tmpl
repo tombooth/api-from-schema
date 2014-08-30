@@ -1,24 +1,44 @@
 package main
 
 import (
+	"fmt"
 	"io"
+	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
 )
 
+type HTTPError struct {
+	Id      string
+	Message string
+	URL     string
+}
+
+func JSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	w.Write(jsonData)
+}
+
 {{range .Models}}{{$Model := .}}
 type {{.Name}} {{.AsType}}
 
 {{range .Constructors}}
-func {{.Name}}({{.Arguments}}) {{.ReturnType}} {
+func {{.Name}}({{.ArgumentsAsString}}) {{.ReturnType}} {
 	return {{if .ReturnsList}}[]{{end}}{{$Model.Name}}{}, nil
 }
 {{end}}
 
 {{range .Endpoints}}
-{{.HandlerDefinition}}
+{{.HandlerDefinition $Model}}
 {{end}}
 
 func Bind{{.Name}}Handlers(router *mux.Router) {

@@ -17,7 +17,7 @@ type Model struct {
 
 type Constructor struct {
 	Name        string
-	Arguments   string
+	Arguments   []string
 	ReturnType  string
 	ReturnsList bool
 }
@@ -58,7 +58,6 @@ func (model *Model) ConstructorForEndpoint(endpoint Endpoint) (Constructor, erro
 	}
 
 	nameSuffix := ""
-	arguments := ""
 	if endpoint.IsList {
 		nameSuffix = nameSuffix + "s"
 	}
@@ -69,12 +68,11 @@ func (model *Model) ConstructorForEndpoint(endpoint Endpoint) (Constructor, erro
 			byThings = append(byThings, strings.Title(v))
 		}
 		nameSuffix = nameSuffix + strings.Join(byThings, "And")
-		arguments = strings.Join(vars, ", ") + " string"
 	}
 
 	return Constructor{
 		Name:        fmt.Sprintf("%v%v%v", namePrefix, model.Name, nameSuffix),
-		Arguments:   arguments,
+		Arguments:   vars,
 		ReturnType:  fmt.Sprintf("(%v%v, error)", returnTypePrefix, model.Name),
 		ReturnsList: endpoint.IsList,
 	}, nil
@@ -98,4 +96,12 @@ func (model *Model) Constructors() []Constructor {
 	}
 
 	return constructors
+}
+
+func (constructor *Constructor) ArgumentsAsString() string {
+	arguments := ""
+	if len(constructor.Arguments) > 0 {
+		arguments = strings.Join(constructor.Arguments, ", ") + " string"
+	}
+	return arguments
 }

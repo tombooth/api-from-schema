@@ -79,11 +79,17 @@ func (endpoint *Endpoint) HandlerName() string {
 	}, "")
 }
 
-func (endpoint *Endpoint) HandlerDefinition() string {
+func (endpoint *Endpoint) HandlerDefinition(model Model) string {
 	var handlerDefinition bytes.Buffer
 
 	apiTmpl, _ := template.ParseFiles("templates/handlerfunc.tmpl")
-	apiTmpl.Execute(&handlerDefinition, endpoint)
+	apiTmpl.Execute(&handlerDefinition, struct {
+		Model    *Model
+		Endpoint *Endpoint
+	}{
+		Model:    &model,
+		Endpoint: endpoint,
+	})
 
 	return handlerDefinition.String()
 }

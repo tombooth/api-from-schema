@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/tombooth/api-from-schema/schematic"
@@ -23,12 +24,12 @@ func modelByName(models []Model, name string) *Model {
 }
 
 func assertEqual(t *testing.T, expected interface{}, got interface{}) {
-	if got != expected {
+	if !reflect.DeepEqual(expected, got) {
 		t.Errorf("Expected %v, got %v", expected, got)
 	}
 }
 
-func expectConstructor(t *testing.T, constructors []Constructor, name, arguments, returnType string) {
+func expectConstructor(t *testing.T, constructors []Constructor, name string, arguments []string, returnType string) {
 	for _, constructor := range constructors {
 		if constructor.Name == name {
 			assertEqual(t, arguments, constructor.Arguments)
@@ -49,16 +50,15 @@ func TestConstructor(t *testing.T) {
 	expectConstructor(
 		t, constructors,
 		"ThingByThingIdentifier",
-		"thingIdentifier string",
+		[]string{"thingIdentifier"},
 		"(Thing, error)")
-	expectConstructor(
-		t, constructors,
+	expectConstructor(t, constructors,
 		"ListThingsByThing1IdentifierAndThing2Identifier",
-		"thing1Identifier, thing2Identifier string",
+		[]string{"thing1Identifier", "thing2Identifier"},
 		"([]Thing, error)")
 	expectConstructor(t, constructors,
 		"ListThings",
-		"",
+		[]string{},
 		"([]Thing, error)")
 
 	constructors = modelByName(models, "Thing1").Constructors()
@@ -68,7 +68,7 @@ func TestConstructor(t *testing.T) {
 	assertEqual(t, 1, len(constructors))
 	expectConstructor(t, constructors,
 		"Thing2ByThing2Identifier",
-		"thing2Identifier string",
+		[]string{"thing2Identifier"},
 		"(Thing2, error)")
 }
 
@@ -84,4 +84,16 @@ func TestConstructorForEndpoint(t *testing.T) {
 	model = modelByName(models, "Thing1")
 	_, err = model.ConstructorForEndpoint(model.Endpoints[0])
 	assertEqual(t, true, err != nil)
+}
+
+func TestConstructorArgumentsAsString(t *testing.T) {
+	constructor := Constructor{
+		Arguments: []string{"foo", "bar"},
+	}
+	assertEqual(t, "foo, bar string", constructor.ArgumentsAsString())
+
+	constructor = Constructor{
+		Arguments: []string{},
+	}
+	assertEqual(t, "", constructor.ArgumentsAsString())
 }

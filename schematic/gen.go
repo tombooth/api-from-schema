@@ -9,6 +9,15 @@ import (
 	"text/template"
 )
 
+var fieldTemplate *template.Template
+
+func init() {
+	fieldTemplate, _ = template.
+		New("field").
+		Funcs(helpers).
+		Parse("{{initialCap .Name}} {{.Type}} {{jsonTag .Name .Required}} {{asComment .Definition.Description}}")
+}
+
 func ParseSchema(path string) (*Schema, error) {
 	var f *os.File
 	var s Schema
@@ -131,7 +140,6 @@ func surroundWith(slice []string, prefix string, suffix string) []string {
 
 func (s *Schema) goType(required bool, force bool) (goType string) {
 	// Resolve JSON reference/pointer
-	fieldTemplate, _ := template.New("field").Parse("{{initialCap .Name}} {{.Type}} {{jsonTag .Name .Required}} {{asComment .Definition.Description}}")
 	types := s.Types()
 	for _, kind := range types {
 		switch kind {

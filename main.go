@@ -26,9 +26,18 @@ Options:
 
 	if apiSchema, err := schema.ParseSchema(path); err == nil {
 		apiSchema.Resolve(nil)
-		endpoints, _ := EndpointsFromSchema(apiSchema)
+		endpoints, definitionsToEndpoints := EndpointsFromSchema(apiSchema)
+		models := ModelsFromDTE(definitionsToEndpoints)
+
+		context := struct {
+			Endpoints []Endpoint
+			Models    []Model
+		}{
+			Endpoints: endpoints,
+			Models:    models,
+		}
 
 		apiTmpl, _ := template.ParseFiles("templates/api.tmpl")
-		apiTmpl.Execute(os.Stdout, endpoints)
+		apiTmpl.Execute(os.Stdout, context)
 	}
 }

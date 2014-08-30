@@ -7,13 +7,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
-{{range .}}
+{{range .Models}}
+type {{.Name}} struct {
+}
+{{end}}
+
+{{range .Endpoints}}
 {{.HandlerDefinition}}
 {{end}}
 
 func main() {
 	r := mux.NewRouter()
-	{{range .}}
+	{{range .Endpoints}}
 	r.HandleFunc("{{.URL}}", {{.HandlerName}}).Methods("{{.Method}}"){{end}}
 
 	http.ListenAndServe(":8080", r)

@@ -17,6 +17,17 @@ type Endpoint struct {
 	HRefDefinition     *schema.HRef
 }
 
+func EndpointFromLink(link schema.Link, parent *schema.Schema) Endpoint {
+	return Endpoint{
+		URL:    link.HRef.URLPattern(),
+		Method: link.Method,
+		IsList: link.Rel == "instances",
+
+		ResponseDefinition: parent,
+		HRefDefinition:     link.HRef,
+	}
+}
+
 func EndpointsFromSchema(apiSchema *schema.Schema) ([]Endpoint, map[*schema.Schema][]Endpoint) {
 	endpoints := []Endpoint{}
 	definitionToEndpoints := make(map[*schema.Schema][]Endpoint)
@@ -25,15 +36,9 @@ func EndpointsFromSchema(apiSchema *schema.Schema) ([]Endpoint, map[*schema.Sche
 		endpointsForDefinition := []Endpoint{}
 
 		for _, link := range definition.Links {
-			endpoint := Endpoint{
-				URL:    link.HRef.URLPattern(),
-				Method: link.Method,
-				IsList: link.Rel == "instances",
-
-				ResponseDefinition: definition,
-				HRefDefinition:     link.HRef,
-			}
-			endpointsForDefinition = append(endpointsForDefinition, endpoint)
+			endpointsForDefinition = append(
+				endpointsForDefinition,
+				EndpointFromLink(link, definition))
 		}
 
 		endpoints = append(endpoints, endpointsForDefinition...)

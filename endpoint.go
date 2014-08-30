@@ -17,10 +17,13 @@ type Endpoint struct {
 	HRefDefinition     *schema.HRef
 }
 
-func EndpointsFromSchema(apiSchema *schema.Schema) []Endpoint {
+func EndpointsFromSchema(apiSchema *schema.Schema) ([]Endpoint, map[*schema.Schema][]Endpoint) {
 	endpoints := []Endpoint{}
+	definitionToEndpoints := make(map[*schema.Schema][]Endpoint)
 
 	for _, definition := range apiSchema.Definitions {
+		endpointsForDefinition := []Endpoint{}
+
 		for _, link := range definition.Links {
 			endpoint := Endpoint{
 				URL:    link.HRef.URLPattern(),
@@ -30,11 +33,14 @@ func EndpointsFromSchema(apiSchema *schema.Schema) []Endpoint {
 				ResponseDefinition: definition,
 				HRefDefinition:     link.HRef,
 			}
-			endpoints = append(endpoints, endpoint)
+			endpointsForDefinition = append(endpointsForDefinition, endpoint)
 		}
+
+		endpoints = append(endpoints, endpointsForDefinition...)
+		definitionToEndpoints[definition] = endpointsForDefinition
 	}
 
-	return endpoints
+	return endpoints, definitionToEndpoints
 }
 
 func (endpoint *Endpoint) HandlerName() string {

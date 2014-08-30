@@ -26,7 +26,7 @@ Options:
 
 	if apiSchema, err := schema.ParseSchema(path); err == nil {
 		apiSchema.Resolve(nil)
-		endpoints := EndpointsFromSchema(apiSchema)
+		endpoints, _ := EndpointsFromSchema(apiSchema)
 
 		apiTmpl, _ := template.ParseFiles("templates/api.tmpl")
 		apiTmpl.Execute(os.Stdout, endpoints)

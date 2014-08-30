@@ -26,3 +26,7 @@ func ModelsFromSchema(apiSchema *schema.Schema) []Model {
 
 	return models
 }
+
+func (model *Model) AsType() string {
+	return model.Definition.GoType()
+}

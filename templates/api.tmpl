@@ -8,8 +8,7 @@ import (
 )
 
 {{range .Models}}
-type {{.Name}} struct {
-}
+type {{.Name}} {{.AsType}}
 
 {{range .Endpoints}}
 {{.HandlerDefinition}}

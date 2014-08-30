@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-04/hyper-schema",
+  "definitions": {
+    "thing": {
+      "$schema": "http://json-schema.org/draft-04/hyper-schema",
+      "title": "Thing",
+      "definitions": {
+        "id": {
+          "description": "unique identifier of thing",
+          "type": [
+            "integer"
+          ]
+        },
+        "identifier": {
+          "$ref": "#/definitions/thing/definitions/id"
+        }
+      },
+      "links": [
+        {
+          "href": "/thing/{(%23%2Fdefinitions%2Fthing%2Fdefinitions%2Fidentifier)}",
+          "method": "GET",
+          "rel": "self",
+          "title": "Info"
+        },
+        {
+          "href": "/thing1/{(%23%2Fdefinitions%2Fthing1%2Fdefinitions%2Fidentifier)}/thing2/{(%23%2Fdefinitions%2Fthing2%2Fdefinitions%2Fidentifier)}/thing",
+          "method": "GET",
+          "rel": "instances",
+          "title": "Info"
+        },
+        {
+          "href": "/thing/{(%23%2Fdefinitions%2Fthing%2Fdefinitions%2Fidentifier)}",
+          "method": "PUT",
+          "rel": "update",
+          "title": "Change a thing"
+        },
+        {
+          "href": "/thing",
+          "method": "GET",
+          "rel": "instances",
+          "title": "List"
+        }
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/thing/definitions/id"
+        }
+      },
+      "type": [
+        "object"
+      ]
+    },
+    "thing1": {
+      "$schema": "http://json-schema.org/draft-04/hyper-schema",
+      "title": "Thing1",
+      "definitions": {
+        "id": {
+          "description": "unique identifier of thing",
+          "type": [
+            "integer"
+          ]
+        },
+        "identifier": {
+          "$ref": "#/definitions/thing1/definitions/id"
+        }
+      },
+      "links": [
+        {
+          "href": "/thing1",
+          "method": "POST",
+          "rel": "create",
+          "title": "Create"
+        }
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/thing1/definitions/id"
+        }
+      },
+      "type": [
+        "object"
+      ]
+    },
+    "thing2": {
+      "$schema": "http://json-schema.org/draft-04/hyper-schema",
+      "title": "Thing2",
+      "definitions": {
+        "id": {
+          "description": "unique identifier of thing",
+          "type": [
+            "integer"
+          ]
+        },
+        "identifier": {
+          "$ref": "#/definitions/thing2/definitions/id"
+        }
+      },
+      "links": [
+        {
+          "href": "/thing2/{(%23%2Fdefinitions%2Fthing2%2Fdefinitions%2Fidentifier)}",
+          "method": "PUT",
+          "rel": "update",
+          "title": "Update"
+        },
+        {
+          "href": "/thing2/{(%23%2Fdefinitions%2Fthing2%2Fdefinitions%2Fidentifier)}",
+          "method": "Delete",
+          "rel": "destroy",
+          "title": "Destroy"
+        }
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/thing2/definitions/id"
+        }
+      },
+      "type": [
+        "object"
+      ]
+    }
+  },
+  "properties": {
+    "thing": {
+      "$ref": "#/definitions/thing"
+    },
+    "thing1": {
+      "$ref": "#/definitions/thing1"
+    },
+    "thing2": {
+      "$ref": "#/definitions/thing2"
+    }
+  },
+  "type": [
+    "object"
+  ],
+  "description": "Testing API",
+  "id": "test-api",
+  "title": "A Test API"
+}

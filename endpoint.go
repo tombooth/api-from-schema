@@ -82,3 +82,7 @@ func (endpoint *Endpoint) HandlerDefinition() string {
 
 	return handlerDefinition.String()
 }
+
+func (endpoint *Endpoint) Vars() []string {
+	return endpoint.HRefDefinition.Order
+}

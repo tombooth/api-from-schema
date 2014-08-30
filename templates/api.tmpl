@@ -3,12 +3,19 @@ package main
 import (
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
 
-{{range .Models}}
+{{range .Models}}{{$Model := .}}
 type {{.Name}} {{.AsType}}
+
+{{range .Constructors}}
+func {{.Name}}({{.Arguments}}) {{.ReturnType}} {
+	return {{if .ReturnsList}}[]{{end}}{{$Model.Name}}{}, nil
+}
+{{end}}
 
 {{range .Endpoints}}
 {{.HandlerDefinition}}

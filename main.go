@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"go/format"
 	"os"
 	"text/template"
 
@@ -34,7 +37,15 @@ Options:
 			Models: models,
 		}
 
+		var apiSource bytes.Buffer
+
 		apiTmpl, _ := template.ParseFiles("templates/api.tmpl")
-		apiTmpl.Execute(os.Stdout, context)
+		apiTmpl.Execute(&apiSource, context)
+
+		if formattedSource, err := format.Source(apiSource.Bytes()); err != nil {
+			fmt.Println("Failed to format source: %v", err)
+		} else {
+			os.Stdout.Write(formattedSource)
+		}
 	}
 }

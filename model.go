@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -41,66 +42,59 @@ func (model *Model) AsType() string {
 	return model.Definition.GoType()
 }
 
-func (model *Model) endpointsWithRetrieval() []Endpoint {
-	endpoints := []Endpoint{}
-	for _, endpoint := range model.Endpoints {
-		if len(endpoint.Vars()) > 0 || endpoint.IsList {
-			endpoints = append(endpoints, endpoint)
-		}
+func (model *Model) ConstructorForEndpoint(endpoint Endpoint) (Constructor, error) {
+
+	if !endpoint.RequiresModel() {
+		return Constructor{}, errors.New("Cannot create a constructor object for an endpoint that doesn't need one")
 	}
-	return endpoints
+
+	vars := endpoint.Vars()
+
+	namePrefix := ""
+	returnTypePrefix := ""
+	if endpoint.IsList {
+		namePrefix = "List"
+		returnTypePrefix = "[]"
+	}
+
+	nameSuffix := ""
+	arguments := ""
+	if endpoint.IsList {
+		nameSuffix = nameSuffix + "s"
+	}
+	if len(vars) > 0 {
+		nameSuffix = nameSuffix + "By"
+		byThings := []string{}
+		for _, v := range vars {
+			byThings = append(byThings, strings.Title(v))
+		}
+		nameSuffix = nameSuffix + strings.Join(byThings, "And")
+		arguments = strings.Join(vars, ", ") + " string"
+	}
+
+	return Constructor{
+		Name:        fmt.Sprintf("%v%v%v", namePrefix, model.Name, nameSuffix),
+		Arguments:   arguments,
+		ReturnType:  fmt.Sprintf("(%v%v, error)", returnTypePrefix, model.Name),
+		ReturnsList: endpoint.IsList,
+	}, nil
 }
 
 func (model *Model) Constructors() []Constructor {
 	constructors := []Constructor{}
+	signatures := make(map[EndpointSignature]bool)
 
-	type constructorSignature struct {
-		IsList bool
-		Vars   string
-	}
-
-	signatures := make(map[constructorSignature][]string)
-
-	for _, endpoint := range model.endpointsWithRetrieval() {
-		signature := constructorSignature{
-			IsList: endpoint.IsList,
-			Vars:   strings.Join(endpoint.Vars(), ""),
-		}
-		if _, found := signatures[signature]; !found {
-			signatures[signature] = endpoint.Vars()
-		}
-	}
-
-	for signature, vars := range signatures {
-		namePrefix := ""
-		returnTypePrefix := ""
-		if signature.IsList {
-			namePrefix = "List"
-			returnTypePrefix = "[]"
-		}
-
-		nameSuffix := ""
-		arguments := ""
-		if signature.IsList {
-			nameSuffix = nameSuffix + "s"
-		}
-		if len(vars) > 0 {
-			nameSuffix = nameSuffix + "By"
-			byThings := []string{}
-			for _, v := range vars {
-				byThings = append(byThings, strings.Title(v))
+	for _, endpoint := range model.Endpoints {
+		if endpoint.RequiresModel() {
+			signature := endpoint.Signature()
+			if !signatures[signature] {
+				// it shouldn't through an error as we have already validated it will have
+				// a constructor
+				constructor, _ := model.ConstructorForEndpoint(endpoint)
+				constructors = append(constructors, constructor)
+				signatures[signature] = true
 			}
-			nameSuffix = nameSuffix + strings.Join(byThings, "And")
-			arguments = strings.Join(vars, ", ") + " string"
 		}
-
-		constructor := Constructor{
-			Name:        fmt.Sprintf("%v%v%v", namePrefix, model.Name, nameSuffix),
-			Arguments:   arguments,
-			ReturnType:  fmt.Sprintf("(%v%v, error)", returnTypePrefix, model.Name),
-			ReturnsList: signature.IsList,
-		}
-		constructors = append(constructors, constructor)
 	}
 
 	return constructors

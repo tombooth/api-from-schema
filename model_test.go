@@ -71,3 +71,17 @@ func TestConstructor(t *testing.T) {
 		"thing2Identifier string",
 		"(Thing2, error)")
 }
+
+func TestConstructorForEndpoint(t *testing.T) {
+	models := modelsFromJSON("fixtures/model-tests.json")
+
+	assertEqual(t, 3, len(models))
+
+	model := modelByName(models, "Thing")
+	_, err := model.ConstructorForEndpoint(model.Endpoints[0])
+	assertEqual(t, nil, err)
+
+	model = modelByName(models, "Thing1")
+	_, err = model.ConstructorForEndpoint(model.Endpoints[0])
+	assertEqual(t, true, err != nil)
+}

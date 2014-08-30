@@ -40,3 +40,31 @@ func TestHandlerName(t *testing.T) {
 		t.Errorf("HanderName failed. [0] %v [1] %v", endpoints[0].HandlerName(), endpoints[1].HandlerName())
 	}
 }
+
+func expectRequiresModel(t *testing.T, expected bool, order []string, isList bool) {
+	endpoint := Endpoint{
+		HRefDefinition: &schema.HRef{
+			Order: order,
+		},
+		IsList: isList,
+	}
+	assertEqual(t, expected, endpoint.RequiresModel())
+}
+
+func TestRequiresModel(t *testing.T) {
+	expectRequiresModel(t, true, []string{"foo"}, false)
+	expectRequiresModel(t, true, []string{"foo"}, true)
+	expectRequiresModel(t, true, []string{}, true)
+	expectRequiresModel(t, false, []string{}, false)
+}
+
+func TestSignature(t *testing.T) {
+	endpoint := Endpoint{
+		HRefDefinition: &schema.HRef{
+			Order: []string{"foo", "bar"},
+		},
+		IsList: true,
+	}
+	assertEqual(t, "foobar", endpoint.Signature().Vars)
+	assertEqual(t, true, endpoint.Signature().IsList)
+}

@@ -17,6 +17,11 @@ type Endpoint struct {
 	HRefDefinition     *schema.HRef
 }
 
+type EndpointSignature struct {
+	IsList bool
+	Vars   string
+}
+
 func EndpointFromLink(link schema.Link, parent *schema.Schema) Endpoint {
 	return Endpoint{
 		URL:    link.HRef.URLPattern(),
@@ -85,4 +90,15 @@ func (endpoint *Endpoint) HandlerDefinition() string {
 
 func (endpoint *Endpoint) Vars() []string {
 	return endpoint.HRefDefinition.Order
+}
+
+func (endpoint *Endpoint) RequiresModel() bool {
+	return len(endpoint.Vars()) > 0 || endpoint.IsList
+}
+
+func (endpoint *Endpoint) Signature() EndpointSignature {
+	return EndpointSignature{
+		IsList: endpoint.IsList,
+		Vars:   strings.Join(endpoint.Vars(), ""),
+	}
 }

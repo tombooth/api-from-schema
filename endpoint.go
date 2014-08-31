@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bytes"
+	"fmt"
+	"os"
 	"strings"
-	"text/template"
 
 	"github.com/tombooth/api-from-schema/schematic"
 )
@@ -79,11 +79,8 @@ func (endpoint *Endpoint) HandlerName() string {
 	}, "")
 }
 
-func (endpoint *Endpoint) HandlerDefinition(model Model) string {
-	var handlerDefinition bytes.Buffer
-
-	apiTmpl, _ := template.ParseFiles("templates/handlerfunc.tmpl")
-	apiTmpl.Execute(&handlerDefinition, struct {
+func (endpoint *Endpoint) HandlerDefinition(model Model, templateStore TemplateStore) string {
+	handlerDefinition, err := templateStore.Execute("handlerfunc.tmpl", struct {
 		Model    *Model
 		Endpoint *Endpoint
 	}{
@@ -91,7 +88,11 @@ func (endpoint *Endpoint) HandlerDefinition(model Model) string {
 		Endpoint: endpoint,
 	})
 
-	return handlerDefinition.String()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to execute handler template: %v", err)
+	}
+
+	return handlerDefinition
 }
 
 func (endpoint *Endpoint) Vars() []string {

@@ -28,6 +28,8 @@ func JSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Write(jsonData)
 }
 
+{{$TemplateStore := .TemplateStore}}
+
 {{range .Models}}{{$Model := .}}
 type {{.Name}} {{.AsType}}
 
@@ -37,8 +39,12 @@ func {{.Name}}({{.ArgumentsAsString}}) {{.ReturnType}} {
 }
 {{end}}
 
+func (model *{{.Name}}) Delete() error {
+	return nil
+}
+
 {{range .Endpoints}}
-{{.HandlerDefinition $Model}}
+{{.HandlerDefinition $Model $TemplateStore}}
 {{end}}
 
 func Bind{{.Name}}Handlers(router *mux.Router) {

@@ -28,8 +28,6 @@ func JSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Write(jsonData)
 }
 
-{{$TemplateStore := .TemplateStore}}
-
 {{range .Models}}{{$Model := .}}
 type {{.Name}} {{.AsType}}
 

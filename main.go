@@ -83,11 +83,9 @@ Options:
 		models := ModelsFromSchema(apiSchema)
 
 		context := struct {
-			Models        []Model
-			TemplateStore TemplateStore
+			Models []Model
 		}{
-			Models:        models,
-			TemplateStore: templateStore,
+			Models: models,
 		}
 
 		if apiOutput, err := templateStore.ExecuteAndFormat(context, "api.tmpl", "handlerfunc.tmpl"); err != nil {

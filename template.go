@@ -25,10 +25,17 @@ func NewTemplateStore(path string) (TemplateStore, error) {
 	}, nil
 }
 
-func (store *TemplateStore) Execute(name string, context interface{}) (string, error) {
+func (store *TemplateStore) Execute(context interface{}, paths ...string) (string, error) {
 	var templateOutput bytes.Buffer
 
-	tmpl, err := template.ParseFiles(path.Join(store.directory, name))
+	qualifiedPaths := []string{}
+	for _, unqualPath := range paths {
+		qualifiedPaths = append(
+			qualifiedPaths,
+			path.Join(store.directory, unqualPath))
+	}
+
+	tmpl, err := template.ParseFiles(qualifiedPaths...)
 	if err != nil {
 		return "", err
 	}
@@ -41,10 +48,10 @@ func (store *TemplateStore) Execute(name string, context interface{}) (string, e
 	return templateOutput.String(), nil
 }
 
-func (store *TemplateStore) ExecuteAndFormat(name string, context interface{}) (string, error) {
+func (store *TemplateStore) ExecuteAndFormat(context interface{}, paths ...string) (string, error) {
 	stringOutput := ""
 
-	unformattedSource, err := store.Execute(name, context)
+	unformattedSource, err := store.Execute(context, paths...)
 	if err != nil {
 		return stringOutput, err
 	}

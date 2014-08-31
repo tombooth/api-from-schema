@@ -80,13 +80,13 @@ func (endpoint *Endpoint) HandlerName() string {
 }
 
 func (endpoint *Endpoint) HandlerDefinition(model Model, templateStore TemplateStore) string {
-	handlerDefinition, err := templateStore.Execute("handlerfunc.tmpl", struct {
+	handlerDefinition, err := templateStore.Execute(struct {
 		Model    *Model
 		Endpoint *Endpoint
 	}{
 		Model:    &model,
 		Endpoint: endpoint,
-	})
+	}, "handlerfunc.tmpl")
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to execute handler template: %v", err)

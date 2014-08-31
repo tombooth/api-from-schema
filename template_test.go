@@ -5,23 +5,23 @@ import (
 	"testing"
 )
 
-func assertTemplateEquals(t *testing.T, templateFunc func(string, interface{}) (string, error), expected, name string, context interface{}) {
-	output, err := templateFunc(name, context)
+func assertTemplateEquals(t *testing.T, templateFunc func(interface{}, ...string) (string, error), expected, context interface{}, paths ...string) {
+	output, err := templateFunc(context, paths...)
 	if err != nil {
-		t.Errorf("%v should have executed: %v", name, err)
+		t.Errorf("%v should have executed: %v", paths, err)
 	}
 
 	assertEqual(t, expected, strings.TrimSpace(output))
 }
 
-func assertExecuteEquals(t *testing.T, expected, name string, context interface{}) {
+func assertExecuteEquals(t *testing.T, expected, context interface{}, paths ...string) {
 	store, _ := NewTemplateStore("fixtures/templates/")
-	assertTemplateEquals(t, store.Execute, expected, name, context)
+	assertTemplateEquals(t, store.Execute, expected, context, paths...)
 }
 
-func assertExecuteAndFormatEquals(t *testing.T, expected, name string, context interface{}) {
+func assertExecuteAndFormatEquals(t *testing.T, expected, context interface{}, paths ...string) {
 	store, _ := NewTemplateStore("fixtures/templates/")
-	assertTemplateEquals(t, store.ExecuteAndFormat, expected, name, context)
+	assertTemplateEquals(t, store.ExecuteAndFormat, expected, context, paths...)
 }
 
 func TestTemplateStoreCreation(t *testing.T) {
@@ -42,6 +42,7 @@ func TestTemplateStoreCreation(t *testing.T) {
 }
 
 func TestTemplateStoreExecution(t *testing.T) {
-	assertExecuteEquals(t, "some-string", "echo.tmpl", "some-string")
-	assertExecuteAndFormatEquals(t, "package foo", "needsFormatting.tmpl", nil)
+	assertExecuteEquals(t, "some-string", "some-string", "echo.tmpl")
+	assertExecuteAndFormatEquals(t, "package foo", nil, "needsFormatting.tmpl")
+	assertExecuteEquals(t, "some-string", "some-string", "parent.tmpl", "child.tmpl")
 }

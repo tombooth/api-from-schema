@@ -43,7 +43,7 @@ Options:
 			TemplateStore: templateStore,
 		}
 
-		if apiOutput, err := templateStore.ExecuteAndFormat("api.tmpl", context); err != nil {
+		if apiOutput, err := templateStore.ExecuteAndFormat(context, "api.tmpl"); err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to execute api template: %v", err)
 		} else {
 			print(apiOutput)

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/tombooth/api-from-schema/schematic"
@@ -13,8 +11,9 @@ type Endpoint struct {
 	Method string
 	IsList bool
 
-	ResponseDefinition *schema.Schema
-	HRefDefinition     *schema.HRef
+	Model Model
+
+	hrefDefinition *schema.HRef
 }
 
 type EndpointSignature struct {
@@ -22,39 +21,28 @@ type EndpointSignature struct {
 	Vars   string
 }
 
-func EndpointFromLink(link schema.Link, parent *schema.Schema) Endpoint {
+func EndpointFromLink(link schema.Link, parent Model) Endpoint {
 	return Endpoint{
 		URL:    link.HRef.URLPattern(),
 		Method: link.Method,
 		IsList: link.Rel == "instances",
 
-		ResponseDefinition: parent,
-		HRefDefinition:     link.HRef,
+		Model: parent,
+
+		hrefDefinition: link.HRef,
 	}
 }
 
-func EndpointsFromDefinition(definition *schema.Schema) []Endpoint {
-	endpointsForDefinition := []Endpoint{}
+func EndpointsFromModel(model Model) []Endpoint {
+	endpointsForModel := []Endpoint{}
 
-	for _, link := range definition.Links {
-		endpointsForDefinition = append(
-			endpointsForDefinition,
-			EndpointFromLink(link, definition))
+	for _, link := range model.Definition.Links {
+		endpointsForModel = append(
+			endpointsForModel,
+			EndpointFromLink(link, model))
 	}
 
-	return endpointsForDefinition
-}
-
-func EndpointsFromSchema(apiSchema *schema.Schema) []Endpoint {
-	endpoints := []Endpoint{}
-
-	for _, definition := range apiSchema.Definitions {
-		endpoints = append(
-			endpoints,
-			EndpointsFromDefinition(definition)...)
-	}
-
-	return endpoints
+	return endpointsForModel
 }
 
 func (endpoint *Endpoint) HandlerName() string {
@@ -64,39 +52,23 @@ func (endpoint *Endpoint) HandlerName() string {
 	}
 
 	parameters := ""
-	if len(endpoint.HRefDefinition.Order) > 0 {
+	if len(endpoint.hrefDefinition.Order) > 0 {
 		parameters = "By"
-		for _, name := range endpoint.HRefDefinition.Order {
+		for _, name := range endpoint.hrefDefinition.Order {
 			parameters += strings.Title(name)
 		}
 	}
 
 	return strings.Join([]string{
 		endpoint.Method,
-		strings.Title(endpoint.ResponseDefinition.Title),
+		strings.Title(endpoint.Model.Definition.Title),
 		multiple,
 		parameters,
 	}, "")
 }
 
-func (endpoint *Endpoint) HandlerDefinition(model Model, templateStore TemplateStore) string {
-	handlerDefinition, err := templateStore.Execute(struct {
-		Model    *Model
-		Endpoint *Endpoint
-	}{
-		Model:    &model,
-		Endpoint: endpoint,
-	}, "handlerfunc.tmpl")
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to execute handler template: %v", err)
-	}
-
-	return handlerDefinition
-}
-
 func (endpoint *Endpoint) Vars() []string {
-	return endpoint.HRefDefinition.Order
+	return endpoint.hrefDefinition.Order
 }
 
 func (endpoint *Endpoint) RequiresModel() bool {

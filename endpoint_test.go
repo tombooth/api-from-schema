@@ -22,7 +22,13 @@ func endpointsFromJSON(path string) []Endpoint {
 	apiSchema, _ := schema.ParseSchema("fixtures/test-api.json")
 	apiSchema.Resolve(nil)
 
-	return EndpointsFromSchema(apiSchema)
+	models := ModelsFromSchema(apiSchema)
+	endpoints := []Endpoint{}
+	for _, model := range models {
+		endpoints = append(endpoints, model.Endpoints...)
+	}
+
+	return endpoints
 }
 
 func TestEndpoints(t *testing.T) {
@@ -43,7 +49,7 @@ func TestHandlerName(t *testing.T) {
 
 func expectRequiresModel(t *testing.T, expected bool, order []string, isList bool) {
 	endpoint := Endpoint{
-		HRefDefinition: &schema.HRef{
+		hrefDefinition: &schema.HRef{
 			Order: order,
 		},
 		IsList: isList,
@@ -60,7 +66,7 @@ func TestRequiresModel(t *testing.T) {
 
 func TestSignature(t *testing.T) {
 	endpoint := Endpoint{
-		HRefDefinition: &schema.HRef{
+		hrefDefinition: &schema.HRef{
 			Order: []string{"foo", "bar"},
 		},
 		IsList: true,

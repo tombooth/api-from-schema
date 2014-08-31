@@ -29,9 +29,8 @@ func ModelsFromSchema(apiSchema *schema.Schema) []Model {
 		model := Model{
 			Name:       definition.Title,
 			Definition: definition,
-
-			Endpoints: EndpointsFromDefinition(definition),
 		}
+		model.Endpoints = EndpointsFromModel(model)
 		models = append(models, model)
 	}
 

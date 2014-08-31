@@ -44,7 +44,7 @@ func (model *{{.Name}}) Delete() error {
 }
 
 {{range .Endpoints}}
-{{.HandlerDefinition $Model $TemplateStore}}
+{{template "HandlerFunction" .}}
 {{end}}
 
 func Bind{{.Name}}Handlers(router *mux.Router) {

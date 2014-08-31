@@ -1,6 +1,7 @@
-func {{.Endpoint.HandlerName}}(w http.ResponseWriter, req *http.Request) {
-{{if gt (len .Endpoint.Vars) 0}}vars := mux.Vars(req){{end}}
-{{if .Endpoint.RequiresModel }}{{$Constructor := .Model.ConstructorForEndpoint .Endpoint}}
+{{define "HandlerFunction"}}
+func {{.HandlerName}}(w http.ResponseWriter, req *http.Request) {
+{{if gt (len .Vars) 0}}vars := mux.Vars(req){{end}}
+{{if .RequiresModel }}{{$Constructor := .Model.ConstructorForEndpoint .}}
 	model, err := {{$Constructor.Name}}({{range $Constructor.Arguments}}
 	vars["{{.}}"],
 	{{end}}
@@ -9,10 +10,11 @@ func {{.Endpoint.HandlerName}}(w http.ResponseWriter, req *http.Request) {
 		JSONResponse(w, 500, HTTPError{Message:fmt.Sprintf("%v", err)})
 	}
 {{end}}
-{{if eq .Endpoint.Method "GET"}}
+{{if eq .Method "GET"}}
 	JSONResponse(w, 200, model)
 {{else}}
-	{{if .Endpoint.RequiresModel}}fmt.Println(model){{end}}
-	io.WriteString(w, "hello from {{.Endpoint.HandlerName}}\n")
+	{{if .RequiresModel}}fmt.Println(model){{end}}
+	io.WriteString(w, "hello from {{.HandlerName}}\n")
 {{end}}
 }
+{{end}}

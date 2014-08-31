@@ -1,0 +1,34 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/docopt/docopt-go"
+	"github.com/gorilla/mux"
+
+	"github.com/{{.Project.Username}}/{{.Project.Name}}/api"
+)
+
+func main() {
+	usage := `{{.Project.Name}}
+
+Usage:
+  {{.Project.Name}} [options]
+
+Options:
+  -h --help               Show this screen.
+  --version               Show version.
+  --port=<port>           Port for HTTP server [default: 8080].
+`
+
+	arguments, _ := docopt.Parse(usage, nil, true, "{{.Project.Name}} 0.1.0", false)
+	port := arguments["--port"].(string)
+
+	router := mux.NewRouter()
+{{range .Models}}
+	api.Bind{{.Name}}Handlers(router){{end}}
+
+	fmt.Printf("Starting server on port %v...\n", port)
+	http.ListenAndServe(fmt.Sprintf(":%v", port), router)
+}

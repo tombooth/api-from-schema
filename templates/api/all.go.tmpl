@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"fmt"
@@ -54,12 +54,3 @@ func Bind{{.Name}}Handlers(router *mux.Router) {
 {{end}}
 }
 {{end}}
-
-func main() {
-	router := mux.NewRouter()
-{{range .Models}}
-	Bind{{.Name}}Handlers(router){{end}}
-
-	http.ListenAndServe(":8080", router)
-}
-

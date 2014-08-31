@@ -1,0 +1,24 @@
+.PHONY: deps third_party test build clean
+
+NAME := {{.Project.Name}}
+ORG_PATH := github.com/{{.Project.Username}}
+REPO_PATH := $(ORG_PATH)/$(NAME)
+
+all: deps test build
+
+deps: third_party
+	go run third_party.go get -t -v $(REPO_PATH)
+
+third_party:
+	go run third_party.go setup $(REPO_PATH)
+
+build:
+	go run third_party.go build -o $(NAME) -v $(REPO_PATH)
+
+test:
+	go run third_party.go test -v $(REPO_PATH)
+	go run third_party.go test -v $(REPO_PATH)/api
+
+clean:
+	rm -rf third_party
+	rm -f $(NAME)

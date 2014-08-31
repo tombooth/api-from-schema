@@ -1,3 +1,10 @@
 {
-	"main.go": ["api.tmpl", "handlerfunc.tmpl"]
+	".gitignore": ["gitignore.tmpl"],
+	"README.md": ["README.md.tmpl"],
+	"Makefile": ["Makefile.tmpl"],
+	"third_party.go": ["third_party.go"],
+
+	"main.go": ["main.go.tmpl"],
+
+	"api/all.go": ["api/all.go.tmpl", "api/handlerfunc.tmpl"]
 }

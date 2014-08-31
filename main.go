@@ -88,17 +88,22 @@ Options:
 			Models: models,
 		}
 
-		if apiOutput, err := templateStore.ExecuteAndFormat(context, "api.tmpl", "handlerfunc.tmpl"); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to execute api template: %v", err)
-		} else {
-			mainPath := path.Join(projectPath, "main.go")
-
-			if mainFile, err := os.Create(mainPath); err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to open main.go to write into: %v", err)
+		for filePath, fileTemplate := range templateStore.Files {
+			fullPath := path.Join(projectPath, filePath)
+			if contents, err := fileTemplate.Execute(context); err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to execute template: %v", err)
 			} else {
-				fmt.Fprintf(os.Stdout, "Writing api to %v", mainPath)
-				fmt.Fprint(mainFile, apiOutput)
+				writeFile(fullPath, contents)
 			}
 		}
+	}
+}
+
+func writeFile(filePath, contents string) {
+	fmt.Printf("Writing out to %v", filePath)
+	if file, err := os.Create(filePath); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to open %v to write into: %v", filePath, err)
+	} else {
+		fmt.Fprint(file, contents)
 	}
 }

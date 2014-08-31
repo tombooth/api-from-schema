@@ -1,0 +1,3 @@
+{
+	"main.go": ["api.tmpl", "handlerfunc.tmpl"]
+}

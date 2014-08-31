@@ -1,0 +1,4 @@
+{
+	"something.go": ["needsFormatting.tmpl"],
+	"README.md": ["parent.tmpl", "child.tmpl"]
+}
